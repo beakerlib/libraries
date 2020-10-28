@@ -1,0 +1,6 @@
+summary: a library wrapper helper
+description: |
+  a library wrapper hepler to simplify library download from non-standart locations
+contact: Dalibor Pospíšil <dapospis@redhat.com>
+require:
+- git-core

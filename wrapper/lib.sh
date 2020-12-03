@@ -25,7 +25,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   library-prefix = LibrariesWrapper
-#   library-version = 3
+#   library-version = 4
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 true <<'=cut'
@@ -58,8 +58,8 @@ LibrariesWrapperImport() {
     rlLogInfo "$FUNCNAME(): library not fetched yet"
     rlRun "git init" \
     && rlRun "git remote add origin $url" \
-    && rlRun "git remote set-head origin --auto" \
-    && rlRun "git fetch"
+    && rlRun "git fetch" \
+    && rlRun "git remote set-head origin --auto"
   fi
   rlRun "git checkout $ref -- $path"
   [[ $? -eq 0 ]] \

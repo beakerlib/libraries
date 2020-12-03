@@ -58,10 +58,9 @@ LibrariesWrapperImport() {
     rlLogInfo "$FUNCNAME(): library not fetched yet"
     rlRun "git init" \
     && rlRun "git remote add origin $url" \
-    && rlRun "git fetch --depth=1" \
-    && rlRun "git remote set-head origin --auto"
+    && rlRun "git fetch"
   fi
-  rlRun "git checkout origin/$ref -- $path"
+  rlRun "git checkout $ref -- $path"
   [[ $? -eq 0 ]] \
   && {
     fullpath=$(readlink -e "$path")

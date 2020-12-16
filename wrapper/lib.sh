@@ -25,7 +25,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   library-prefix = LibrariesWrapper
-#   library-version = 4
+#   library-version = 5
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 true <<'=cut'
@@ -48,7 +48,7 @@ LibrariesWrapperImport() {
 
   url="$1"
   ref="${2:-origin/HEAD}"
-  path="$3"
+  path="${3#/}"
 
   res=0
   pushd "$(dirname ${BASH_SOURCE[1]})" > /dev/null
@@ -57,17 +57,20 @@ LibrariesWrapperImport() {
   else
     rlLogInfo "$FUNCNAME(): library not fetched yet"
     rlRun "git init" \
-    && rlRun "git remote add origin $url" \
+    && rlRun "git remote add origin \"${url}\"" \
     && rlRun "git fetch" \
     && rlRun "git remote set-head origin --auto"
   fi
-  rlRun "git checkout $ref -- $path"
+  rlRun "git checkout \"${ref}\" -- \"${path:-.}\"" 0-255 || {
+    ref="origin/${ref}"
+    rlRun "git checkout \"${ref}\" -- \"${path:-.}\""
+  }
   [[ $? -eq 0 ]] \
   && {
     fullpath=$(readlink -e "$path")
     PREFIX="$( grep -E 'library-prefix = [a-zA-Z_][a-zA-Z0-9_]*.*' $path/lib.sh | sed 's|.*library-prefix = \([a-zA-Z_][a-zA-Z0-9_]*\).*|\1|')"
     VERSION="$( grep -E '^#\s*library-version = \S*' $path/lib.sh | sed 's|.*library-version = \(\S*\).*|\1|')"
-    rlLogInfo "real $PREFIX library version $VERSION from $url#$ref/$path found in $fullpath"
+    rlLogInfo "found $PREFIX v$VERSION from ${url}?$(git rev-parse "${t_ref}")#${path} in $fullpath"
   } \
   && bash -n $path/lib.sh \
   && {

@@ -56,6 +56,13 @@ LibrariesWrapperImport() {
   cd lib
   if [[ -d .git ]]; then
     rlLogInfo "$FUNCNAME(): library fetched already"
+    # update the library if checked more than 1h ago
+    if [[ $(( $(date +%s) - $(stat --format=%Y ".git/config") )) -gt 3600 ]]; then
+      rlInfo "the library was fetched at least 1h ago, checking for updates"
+      rlRun "git config core.bare true"
+      rlRun "git remote update"
+      rlRun "git config core.bare false"
+    fi
   else
     rlLogInfo "$FUNCNAME(): library not fetched yet"
     rlRun "git clone --mirror \"${url}\" .git" \

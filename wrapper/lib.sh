@@ -25,7 +25,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   library-prefix = LibrariesWrapper
-#   library-version = 5
+#   library-version = 6
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 true <<'=cut'
@@ -47,30 +47,32 @@ LibrariesWrapperImport() {
 
 
   url="$1"
-  ref="${2:-origin/HEAD}"
+  ref="$2"
   path="${3#/}"
 
   res=0
   pushd "$(dirname ${BASH_SOURCE[1]})" > /dev/null
+  mkdir -p lib
+  cd lib
   if [[ -d .git ]]; then
     rlLogInfo "$FUNCNAME(): library fetched already"
   else
     rlLogInfo "$FUNCNAME(): library not fetched yet"
-    rlRun "git init" \
-    && rlRun "git remote add origin \"${url}\"" \
-    && rlRun "git fetch" \
-    && rlRun "git remote set-head origin --auto"
+    rlRun "git clone --mirror \"${url}\" .git" \
+    && rlRun "git config core.bare false" \
+    && rlRun "cat .git/HEAD > .git/refs/heads/__DEFAULT_BRANCH__"
   fi
-  rlRun "git checkout \"${ref}\" -- \"${path:-.}\"" 0-255 || {
-    ref="origin/${ref}"
-    rlRun "git checkout \"${ref}\" -- \"${path:-.}\""
+  [[ -z "${ref}" ]] && {
+    ref=$(git rev-parse --abbrev-ref __DEFAULT_BRANCH__) \
+      || rlFail "Couldn't refer to the default branch for git repo $path"
   }
+  rlRun "git checkout \"${ref}\" -- \"${path:-.}\""
   [[ $? -eq 0 ]] \
   && {
     fullpath=$(readlink -e "$path")
     PREFIX="$( grep -E 'library-prefix = [a-zA-Z_][a-zA-Z0-9_]*.*' $path/lib.sh | sed 's|.*library-prefix = \([a-zA-Z_][a-zA-Z0-9_]*\).*|\1|')"
     VERSION="$( grep -E '^#\s*library-version = \S*' $path/lib.sh | sed 's|.*library-version = \(\S*\).*|\1|')"
-    rlLogInfo "found $PREFIX v$VERSION from ${url}?$(git rev-parse "${t_ref}")#${path} in $fullpath"
+    rlLogInfo "found $PREFIX v$VERSION from ${url}?$(git rev-parse "${ref}")#${path} in $fullpath"
   } \
   && bash -n $path/lib.sh \
   && {
@@ -91,7 +93,7 @@ LibrariesWrapperImport() {
 }
 
 LibrariesWrapperLibraryLoaded() {
-  which git > /dev/null 2>&1
+  command -v git > /dev/null 2>&1
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

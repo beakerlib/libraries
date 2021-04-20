@@ -46,12 +46,13 @@ function generatetable() {
     echo "| prefix | name | summary | contact | link |" >> $TmpDir/README.md
     echo "| ------ | ---- | ------- | ------- | ---- |" >> $TmpDir/README.md
     for lib in $(find . -name lib.sh) ; do
+        [ "$lib" = "./test/very/deep/file/lib.sh" ] && continue
         dir=$(echo $lib | sed 's/\/lib.sh//')
         cd $dir
         prefix=$(grep '# *library-prefix = ' lib.sh | sed 's/.* = //')
         name=$(echo $dir | sed 's/\.\///')
         summary=$(grep '^summary: ' main.fmf | sed 's/summary: //')
-        contact=$(grep @ main.fmf | sed 's/.*- //')
+        contact=$(grep @ main.fmf | sed 's/.*- //' | sed 's/contact: *//')
         ghuri=$(echo $name | sed 's/\//\/tree\/master\//')
         link="https://github.com/beakerlib/$ghuri/"
         echo "| $prefix | $name | $summary | $contact | $link |" >> $TmpDir/README.md

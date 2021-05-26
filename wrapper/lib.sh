@@ -25,7 +25,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   library-prefix = LibrariesWrapper
-#   library-version = 6
+#   library-version = 7
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 true <<'=cut'
@@ -83,6 +83,8 @@ LibrariesWrapperImport() {
   } \
   && bash -n $path/lib.sh \
   && {
+    rlLogDebug "$FUNCNAME(): resetting ${PREFIX}LibraryDir to $path"
+    eval ${PREFIX}LibraryDir="$path"
     rlLogDebug "$FUNCNAME(): sourcing $path/lib.sh"
     . $path/lib.sh
   } \

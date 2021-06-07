@@ -24,6 +24,14 @@ collaborators for your library repository.
 In order to create a git repository for a new library file a new
 [issue][new] in this project and specify the desired name.
 
+
+## Develop
+
+As every change in the library can affect many tests which depend
+on it, it is strongly recommended to always use pull requests when
+developing new features and fixing bugs and require at least one
+review from collaborators before merging the code to production.
+
 [beakerlib]: https://github.com/beakerlib/
 [new]: https://github.com/beakerlib/libraries/issues/new
 [require]: https://tmt.readthedocs.io/en/latest/spec/tests.html#require

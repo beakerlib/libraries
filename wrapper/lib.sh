@@ -25,7 +25,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   library-prefix = LibrariesWrapper
-#   library-version = 7
+#   library-version = 8
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 true <<'=cut'
@@ -65,7 +65,7 @@ LibrariesWrapperImport() {
     fi
   else
     rlLogInfo "$FUNCNAME(): library not fetched yet"
-    rlRun "git clone --mirror \"${url}\" .git" \
+    rlRun "git clone --quiet --mirror \"${url}\" .git" \
     && rlRun "git config core.bare false" \
     && rlRun "cat .git/HEAD > .git/refs/heads/__DEFAULT_BRANCH__"
   fi

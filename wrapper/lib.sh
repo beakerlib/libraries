@@ -25,7 +25,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   library-prefix = LibrariesWrapper
-#   library-version = 8
+#   library-version = 9
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 true <<'=cut'
@@ -43,12 +43,16 @@ This is helper library to get libraries form a nonstandard locations.
 
 
 LibrariesWrapperImport() {
-  local res url ref path fullpath PREFIX VERSION
+  local res url ref path fullpath PREFIX VERSION git_ca_option
 
 
   url="$1"
   ref="$2"
   path="${3#/}"
+
+  if [[ "$url" =~ \.redhat\.com/ ]]; then
+    git_ca_option="GIT_SSL_NO_VERIFY=1"
+  fi
 
   res=0
   pushd "$(dirname ${BASH_SOURCE[1]})" > /dev/null
@@ -60,12 +64,12 @@ LibrariesWrapperImport() {
     if [[ $(( $(date +%s) - $(stat --format=%Y ".git/config") )) -gt 3600 ]]; then
       rlLogInfo "the library was fetched at least 1h ago, checking for updates"
       rlRun "git config core.bare true"
-      rlRun "git remote update"
+      rlRun "env $git_ca_option git remote update"
       rlRun "git config core.bare false"
     fi
   else
     rlLogInfo "$FUNCNAME(): library not fetched yet"
-    rlRun "git clone --quiet --mirror \"${url}\" .git" \
+    rlRun "env $git_ca_option git clone --quiet --mirror \"${url}\" .git" \
     && rlRun "git config core.bare false" \
     && rlRun "cat .git/HEAD > .git/refs/heads/__DEFAULT_BRANCH__"
   fi
